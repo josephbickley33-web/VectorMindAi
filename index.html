@@ -1644,6 +1644,102 @@
   <script>
     // Simple current year injection
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Lightweight demo stubs (mock responses so demos work locally)
+    function setOutput(id, text) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+    }
+
+    function runAWIDemo() {
+      const input = document.getElementById('demo-awi-input').value.trim();
+      if (!input) { setOutput('demo-awi-output','Please describe the process you want to automate.'); return; }
+      setOutput('demo-awi-output','Generating workflow plan...');
+      setTimeout(() => {
+        const lines = input.split(/[\.\n]/).map(s=>s.trim()).filter(Boolean);
+        const steps = lines.length ? lines.slice(0,3).map((l,i)=>`${i+1}. ${l}`) : ['1. Map inputs and outputs','2. Add AI step to transform data','3. Automate handoff to existing tools'];
+        setOutput('demo-awi-output', 'Suggested workflow:\n' + steps.join('\n'));
+      }, 600);
+    }
+
+    function runAgentDemo() {
+      const role = document.getElementById('demo-agent-role').value.trim() || 'Agent';
+      const task = document.getElementById('demo-agent-task').value.trim() || 'perform the requested task';
+      const details = document.getElementById('demo-agent-details').value.trim() || '';
+      setOutput('demo-agent-output','Thinking...');
+      setTimeout(()=>{
+        setOutput('demo-agent-output', `As a ${role}, I would approach this task as follows:\n1) Clarify the goal (${task}).\n2) Use the available context: ${details || 'no extra details provided'}.\n3) Provide a short script or reply clients can use.`);
+      },500);
+    }
+
+    function runSummariseDemo() {
+      const text = document.getElementById('demo-summarise-input').value.trim();
+      if (!text) { setOutput('demo-summarise-output','Paste some text to summarise.'); return; }
+      setOutput('demo-summarise-output','Summarising...');
+      setTimeout(()=>{
+        const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean);
+        const bullets = sentences.slice(0,3).map(s=>`• ${s.replace(/\s+/g,' ').trim()}`);
+        setOutput('demo-summarise-output', bullets.join('\n'));
+      },400);
+    }
+
+    function runEmailDemo() {
+      const ctx = document.getElementById('demo-email-context').value.trim();
+      const tone = document.getElementById('demo-email-tone').value || 'professional';
+      if (!ctx) { setOutput('demo-email-output','Describe the context to generate an email.'); return; }
+      setOutput('demo-email-output','Generating email...');
+      setTimeout(()=>{
+        const subject = `Regarding: ${ctx.split(/[\.\n]/)[0].slice(0,60)}`;
+        let body = '';
+        if (tone === 'friendly') {
+          body = `Hi there,\n\n${ctx}\n\nCheers,\nVectorMind AI`;
+        } else if (tone === 'direct') {
+          body = `Hello,\n\n${ctx}\n\nPlease let me know the next steps.`;
+        } else if (tone === 'formal') {
+          body = `Dear Recipient,\n\n${ctx}\n\nYours sincerely,\nVectorMind AI`;
+        } else {
+          body = `Hello,\n\n${ctx}\n\nBest regards,\nVectorMind AI`;
+        }
+        setOutput('demo-email-output', `Subject: ${subject}\n\n${body}`);
+      },500);
+    }
+
+    function runForecastDemo() {
+      const seriesText = document.getElementById('demo-forecast-series').value.trim();
+      const horizon = parseInt(document.getElementById('demo-forecast-horizon').value,10) || 3;
+      if (!seriesText) { setOutput('demo-forecast-output','Enter a numeric series, e.g. 10,12,15'); return; }
+      setOutput('demo-forecast-output','Calculating forecast...');
+      setTimeout(()=>{
+        const nums = seriesText.split(',').map(s=>parseFloat(s)).filter(n=>!Number.isNaN(n));
+        if (nums.length < 2) { setOutput('demo-forecast-output','Provide at least two numeric values.'); return; }
+        const n = nums.length;
+        const growth = (nums[n-1]-nums[0])/(n-1);
+        const preds = [];
+        let last = nums[n-1];
+        for (let i=0;i<horizon;i++){ last = last + growth; preds.push(Math.round((last + Number.EPSILON)*100)/100); }
+        setOutput('demo-forecast-output', `Input: [${nums.join(', ')}]\nForecast (${horizon} steps): [${preds.join(', ')}]\nEstimated linear growth per step: ${Math.round(growth*100)/100}`);
+      },600);
+    }
+
+    function runSentimentDemo() {
+      const text = document.getElementById('demo-sentiment-input').value.trim();
+      if (!text) { setOutput('demo-sentiment-output','Paste a customer message to analyse.'); return; }
+      setOutput('demo-sentiment-output','Analysing...');
+      setTimeout(()=>{
+        const pos = ['good','great','love','excellent','happy','pleased','positive','awesome'];
+        const neg = ['bad','poor','hate','terrible','angry','upset','negative','disappointed'];
+        const t = text.toLowerCase();
+        let score = 0;
+        pos.forEach(w=>{ if (t.includes(w)) score++; });
+        neg.forEach(w=>{ if (t.includes(w)) score--; });
+        let sentiment = 'Neutral';
+        if (score > 0) sentiment = 'Positive';
+        if (score < 0) sentiment = 'Negative';
+        const actions = sentiment === 'Positive' ? 'Send a thank-you + upsell suggestion.' : 'Acknowledge issue, offer a remedy, escalate if needed.';
+        setOutput('demo-sentiment-output', `Sentiment: ${sentiment}\nScore: ${score}\nSuggested next actions: ${actions}`);
+      },450);
+    }
   </script>
 </body>
 </html>
