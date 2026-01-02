@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test API</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #050815; color: #fff; }
+    button { padding: 10px 20px; background: #27e0c0; color: #050815; border: none; border-radius: 8px; cursor: pointer; }
+    #output { margin-top: 20px; padding: 10px; background: #1c1f2b; border-radius: 8px; min-height: 50px; }
+  </style>
+</head>
+<body>
+  <h1>API Test</h1>
+  <button onclick="testSentiment()">Test Sentiment API</button>
+  <div id="output">Click the button to test...</div>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+
+    async function postJSON(path, data) {
+      console.log("Calling:", API_BASE + path);
+      const res = await fetch(API_BASE + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      console.log("Response status:", res.status);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }
+
+    async function testSentiment() {
+      const output = document.getElementById("output");
+      output.textContent = "Loading...";
+      try {
+        const result = await postJSON("/api/cx/sentiment", { text: "great service" });
+        output.innerHTML = "<pre>" + result.sentiment_analysis + "</pre>";
+      } catch (err) {
+        output.textContent = "❌ Error: " + err.message;
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

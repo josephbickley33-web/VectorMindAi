@@ -3,11 +3,34 @@ VectorMind AI Backend API
 FastAPI server providing AI endpoints for the frontend
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+import traceback
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import os
+from dotenv import load_dotenv
+import logging
+import openai
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import select as sa_select
+from typing import Optional, List
+from datetime import datetime
+from starlette.concurrency import run_in_threadpool
 
-app = FastAPI(title="VectorMind AI API", version="0.1.0")
+app = FastAPI(title="VectorMind AI API", version="0.2.0")
+
+# Configure OpenAI if API key present
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Configure simple logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("backend")
+if OPENAI_API_KEY:
+    openai.api_key = OPENAI_API_KEY
 
 # Enable CORS for local frontend access
 app.add_middleware(
@@ -18,6 +41,58 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Simple SQLite for saved workflows (file: backend/workflows.db)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./workflows.db")
+engine = create_engine(DATABASE_URL, echo=False, future=True)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+Base = declarative_base()
+
+
+class Workflow(Base):
+    __tablename__ = "workflows"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(256), nullable=True)
+    description = Column(Text, nullable=False)
+    segment = Column(String(128), nullable=True)
+    plan = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+def init_db():
+    Base.metadata.create_all(engine)
+
+
+@app.on_event("startup")
+def on_startup():
+    init_db()
+
+
+# Middleware: log request and response bodies for debugging
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        try:
+            body_bytes = await request.body()
+            body_text = body_bytes.decode("utf-8", errors="replace")
+        except Exception:
+            body_text = "<could not read body>"
+        logger.info("REQ %s %s headers=%s body=%s", request.method, request.url.path, dict(request.headers), body_text[:2000])
+        try:
+            response = await call_next(request)
+            # read response body (may consume iterator)
+            resp_body = b""
+            async for chunk in response.body_iterator:
+                resp_body += chunk
+            resp_text = resp_body.decode("utf-8", errors="replace")
+            logger.info("RESP %s %s status=%s body=%s", request.method, request.url.path, response.status_code, resp_text[:2000])
+            return Response(content=resp_body, status_code=response.status_code, headers=dict(response.headers), media_type=response.media_type)
+        except Exception as e:
+            tb = traceback.format_exc()
+            logger.error("Exception while handling request %s %s: %s", request.method, request.url.path, tb)
+            raise
+
+
+app.add_middleware(LoggingMiddleware)
+
 
 # ============================================================================
 # Request/Response Models
@@ -25,9 +100,14 @@ app.add_middleware(
 
 class WorkflowRequest(BaseModel):
     text: str
+    segment: Optional[str] = None
+    user_id: Optional[str] = None
+    save: Optional[bool] = False
+
 
 class WorkflowResponse(BaseModel):
     workflow_plan: str
+    workflow_id: Optional[int] = None
 
 
 class AgentRequest(BaseModel):
@@ -35,12 +115,14 @@ class AgentRequest(BaseModel):
     task: str
     details: str
 
+
 class AgentResponse(BaseModel):
     agent_output: str
 
 
 class SummariseRequest(BaseModel):
     text: str
+
 
 class SummariseResponse(BaseModel):
     summary: str
@@ -50,6 +132,7 @@ class GenerateEmailRequest(BaseModel):
     context: str
     tone: str
 
+
 class GenerateEmailResponse(BaseModel):
     email: str
 
@@ -58,6 +141,7 @@ class ForecastRequest(BaseModel):
     data: list
     horizon: int
 
+
 class ForecastResponse(BaseModel):
     forecast_result: str
 
@@ -65,8 +149,33 @@ class ForecastResponse(BaseModel):
 class SentimentRequest(BaseModel):
     text: str
 
+
 class SentimentResponse(BaseModel):
     sentiment_analysis: str
+
+
+# ============================================================================
+# Helpers
+# ============================================================================
+
+async def call_openai_chat(system_prompt: str, user_text: str, temperature: float = 0.25, max_tokens: int = 800) -> str:
+    if not OPENAI_API_KEY:
+        raise RuntimeError("OPENAI_API_KEY not set")
+    try:
+        resp = await run_in_threadpool(
+            lambda: openai.ChatCompletion.create(
+                model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_text},
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e:
+        raise
 
 
 # ============================================================================
@@ -77,193 +186,167 @@ class SentimentResponse(BaseModel):
 async def automation_workflow(request: WorkflowRequest):
     """
     AI Automation & Workflow Integration
-    Generates a workflow plan from user input
+    Generates a workflow plan from user input and optionally saves it.
     """
-    # Mock response - replace with real OpenAI call later
-    workflow_plan = f"""
-Workflow Plan for: "{request.text}"
+    # log request
+    logger.info("automation_workflow request segment=%s save=%s", request.segment, request.save)
+    segment_line = ""
+    if request.segment:
+        seg = request.segment.lower()
+        if seg == "agency":
+            segment_line = "Assume this is a digital agency working with multiple clients on retainers."
+        elif seg == "local_service":
+            segment_line = "Assume this is a local service business (trades, clinics, studios)."
+        elif seg == "ecommerce":
+            segment_line = "Assume this is an e-commerce business selling products online."
 
-Step 1: Identify Trigger
-  - Monitor incoming {request.text.split()[0] if request.text else 'data'}
-  - Set up automated listener
+    system_prompt = (
+        "You are an expert in business process design and AI automation. "
+        f"{segment_line} "
+        "Given a description of a workflow, propose a practical automation plan using AI, including steps, tools, and where AI is used. "
+        "Keep it concise and structured with headings and bullet points."
+    )
 
-Step 2: Process & Enrich
-  - Extract key fields
-  - Cross-reference with CRM
+    # If OPENAI_API_KEY not set, return a mock plan
+    if not OPENAI_API_KEY:
+        workflow_plan = f"Mock workflow plan for: {request.text}\n(Install OPENAI_API_KEY to get real results)"
+    else:
+        try:
+            workflow_plan = await call_openai_chat(system_prompt, request.text, temperature=0.25, max_tokens=800)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
-Step 3: Execute Action
-  - Route to appropriate system
-  - Log for audit trail
+    workflow_id = None
+    if request.save and request.user_id:
+        def _save():
+            with SessionLocal() as session:
+                w = Workflow(user_id=request.user_id, description=request.text, segment=request.segment, plan=workflow_plan)
+                session.add(w)
+                session.commit()
+                session.refresh(w)
+                return w.id
+        workflow_id = await run_in_threadpool(_save)
 
-Step 4: Monitor & Optimize
-  - Track success metrics
-  - Adjust parameters as needed
-
-Estimated impact: 40-70% time reduction on manual tasks
-    """.strip()
-    
-    return WorkflowResponse(workflow_plan=workflow_plan)
+    return WorkflowResponse(workflow_plan=workflow_plan, workflow_id=workflow_id)
 
 
 @app.post("/api/agents/assistant", response_model=AgentResponse)
 async def agents_assistant(request: AgentRequest):
-    """
-    AI Agents & Assistants
-    Deploys a custom AI agent with a specific role and task
-    """
-    # Mock response - replace with real OpenAI call later
-    agent_output = f"""
-Agent Initialized: {request.role}
-
-Task: {request.task}
-
-Context: {request.details}
-
-Agent Analysis:
-- Understood context and requirements
-- Identified key decision points
-- Ready to handle customer queries 24/7
-
-Status: ✓ Agent is now live and monitoring
-Next: Agent will handle incoming requests autonomously
-    """.strip()
-    
+    logger.info("agents_assistant request role=%s task=%s", request.role, request.task)
+    system_prompt = (
+        f"You are acting as a specialised assistant. Role: {request.role}. "
+        f"Your job is: {request.task}. Respond with clear, actionable content for a non-technical business user."
+    )
+    if not OPENAI_API_KEY:
+        agent_output = f"Mock agent response for role {request.role}: {request.task}\n{request.details}"
+    else:
+        try:
+            agent_output = await call_openai_chat(system_prompt, request.details, temperature=0.3)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
     return AgentResponse(agent_output=agent_output)
 
 
 @app.post("/api/nlp/summarise", response_model=SummariseResponse)
 async def nlp_summarise(request: SummariseRequest):
-    """
-    Natural Language Processing - Summarisation
-    Summarizes long text into concise key points
-    """
-    # Mock response - replace with real OpenAI call later
-    # In production, this would call GPT-4 or similar
-    words = request.text.split()
-    summary = f"""
-Summary ({len(request.text)} chars → ~40% reduction):
-
-Key Points:
-• Main topic: {' '.join(words[:3]) if len(words) >= 3 else 'Document analysis'}
-• Core message: Condensed from original text
-• Actionable insight: {' '.join(words[-3:]) if len(words) >= 3 else 'Implementation ready'}
-
-Sentiment: Neutral to positive
-Confidence: 94%
-    """.strip()
-    
+    logger.info("nlp_summarise request text_len=%d", len(request.text if request.text else ""))
+    system_prompt = (
+        "You are a summarisation assistant. Summarise the user's text into 3–5 bullet points. "
+        "Be clear, concrete, and avoid buzzwords."
+    )
+    if not OPENAI_API_KEY:
+        words = request.text.split()
+        summary = f"Mock summary: {' '.join(words[:10])}..."
+    else:
+        try:
+            summary = await call_openai_chat(system_prompt, request.text, temperature=0.2, max_tokens=400)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
     return SummariseResponse(summary=summary)
 
 
 @app.post("/api/nlp/generate_email", response_model=GenerateEmailResponse)
 async def nlp_generate_email(request: GenerateEmailRequest):
-    """
-    Natural Language Processing - Email Generation
-    Generates professional emails from context and desired tone
-    """
-    # Mock response - replace with real OpenAI call later
-    email = f"""
-Subject: {request.context.split()[0].title()} Update
-
-Dear Recipient,
-
-Following up on {request.context} with a {request.tone} tone.
-
-We wanted to share important information regarding your request. Based on the context provided, we've prepared a response that aligns with your needs.
-
-Key highlights:
-• Relevant to your situation
-• Professional and courteous
-• Action-oriented next steps
-
-We look forward to your response.
-
-Best regards,
-VectorMind AI Assistant
-
----
-Generated with AI assistance | Review before sending
-    """.strip()
-    
+    logger.info("nlp_generate_email request tone=%s context_len=%d", request.tone, len(request.context if request.context else ""))
+    system_prompt = (
+        f"You are an email-writing assistant. Write a concise, {request.tone} email based on the user's context. Include subject and body."
+    )
+    if not OPENAI_API_KEY:
+        email = f"Mock email for context: {request.context}" 
+    else:
+        try:
+            email = await call_openai_chat(system_prompt, request.context, temperature=0.3, max_tokens=600)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
     return GenerateEmailResponse(email=email)
 
 
 @app.post("/api/predictive/forecast", response_model=ForecastResponse)
 async def predictive_forecast(request: ForecastRequest):
-    """
-    Predictive Analytics & Forecasting
-    Generates forecasts based on historical data
-    """
-    # Mock response - replace with real ML model later
-    if not request.data:
-        avg_value = 0
+    logger.info("predictive_forecast request len=%d horizon=%s", len(request.data if request.data else []), request.horizon)
+    series_str = ", ".join(str(x) for x in request.data)
+    user_prompt = (
+        f"Here is a numeric time series: {series_str}. Project the next {request.horizon} values and explain the reasoning in simple terms."
+    )
+    if not OPENAI_API_KEY:
+        if not request.data:
+            avg = 0
+        else:
+            avg = sum(request.data) / len(request.data)
+        forecast_result = f"Mock forecast: avg={avg:.2f}, next={[round(avg*1.05**(i+1),2) for i in range(request.horizon)]}"
     else:
-        avg_value = sum(request.data) / len(request.data)
-    
-    forecast_result = f"""
-Forecast for next {request.horizon} periods:
-
-Historical data: {len(request.data)} data points
-Average value: {avg_value:.2f}
-Trend: Upward trajectory detected
-
-Period 1: {avg_value * 1.05:.2f} (↑ 5%)
-Period 2: {avg_value * 1.08:.2f} (↑ 8%)
-Period 3: {avg_value * 1.10:.2f} (↑ 10%)
-
-Confidence interval: 88%
-Model: ARIMA with seasonal adjustment
-Recommendation: Monitor for significant deviations
-    """.strip()
-    
+        try:
+            forecast_result = await call_openai_chat("You are a data analyst. Provide an intuitive forecast.", user_prompt, temperature=0.2, max_tokens=600)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
     return ForecastResponse(forecast_result=forecast_result)
 
 
 @app.post("/api/cx/sentiment", response_model=SentimentResponse)
 async def cx_sentiment(request: SentimentRequest):
-    """
-    Customer Experience - Sentiment Analysis
-    Analyzes sentiment and emotional tone of customer feedback
-    """
-    # Mock response - replace with real NLP model later
-    # Simple mock: count positive/negative keywords
-    positive_words = ['good', 'great', 'excellent', 'love', 'happy', 'satisfied', 'amazing', 'wonderful']
-    negative_words = ['bad', 'terrible', 'poor', 'hate', 'angry', 'disappointed', 'awful', 'horrible']
-    
-    text_lower = request.text.lower()
-    pos_count = sum(1 for word in positive_words if word in text_lower)
-    neg_count = sum(1 for word in negative_words if word in text_lower)
-    
-    if pos_count > neg_count:
-        sentiment = "Positive"
-        score = 0.75 + (pos_count * 0.05)
-    elif neg_count > pos_count:
-        sentiment = "Negative"
-        score = 0.25 - (neg_count * 0.05)
+    logger.info("cx_sentiment request text_len=%d", len(request.text if request.text else ""))
+    system_prompt = (
+        "You are a customer experience analyst. Given a customer message, classify the sentiment (positive, neutral, negative) and suggest 2–3 next actions for the business."
+    )
+    if not OPENAI_API_KEY:
+        # fallback simple heuristic
+        positive_words = ['good', 'great', 'excellent', 'love', 'happy', 'satisfied', 'amazing', 'wonderful']
+        negative_words = ['bad', 'terrible', 'poor', 'hate', 'angry', 'disappointed', 'awful', 'horrible']
+        text_lower = request.text.lower()
+        pos_count = sum(1 for word in positive_words if word in text_lower)
+        neg_count = sum(1 for word in negative_words if word in text_lower)
+        sentiment = 'Neutral'
+        if pos_count > neg_count:
+            sentiment = 'Positive'
+        elif neg_count > pos_count:
+            sentiment = 'Negative'
+        sentiment_result = f"Mock Sentiment: {sentiment}. (Install OPENAI_API_KEY for richer analysis)"
     else:
-        sentiment = "Neutral"
-        score = 0.5
-    
-    score = min(1.0, max(0.0, score))
-    
-    sentiment_result = f"""
-Sentiment Analysis Results:
-
-Overall Sentiment: {sentiment}
-Confidence Score: {score:.1%}
-
-Emotional Tone: Mixed engagement
-Key emotions detected:
-  • Primary: {"Satisfaction" if sentiment == "Positive" else "Concern" if sentiment == "Negative" else "Neutral observation"}
-  • Secondary: Professional communication
-
-Recommended Action:
-  • {"Thank customer & continue engagement" if sentiment == "Positive" else "Follow up to address concerns" if sentiment == "Negative" else "Standard support follow-up"}
-
-Customer Health Score: {score:.0%}
-    """.strip()
-    
+        try:
+            sentiment_result = await call_openai_chat(system_prompt, request.text, temperature=0.25, max_tokens=400)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
     return SentimentResponse(sentiment_analysis=sentiment_result)
+
+
+@app.get("/api/automation/workflows")
+async def list_workflows(user_id: str):
+    """List saved workflows for a user (no auth enforced here)."""
+    def _query():
+        with SessionLocal() as session:
+            rows = session.query(Workflow).filter(Workflow.user_id == user_id).order_by(Workflow.created_at.desc()).all()
+            return [
+                {
+                    "id": r.id,
+                    "user_id": r.user_id,
+                    "description": r.description,
+                    "segment": r.segment,
+                    "plan": r.plan,
+                    "created_at": r.created_at.isoformat(),
+                }
+                for r in rows
+            ]
+    return await run_in_threadpool(_query)
 
 
 # ============================================================================
@@ -276,7 +359,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "VectorMind AI API",
-        "version": "0.1.0"
+        "version": "0.2.0"
     }
 
 
@@ -292,6 +375,7 @@ async def root():
             "POST /api/nlp/generate_email",
             "POST /api/predictive/forecast",
             "POST /api/cx/sentiment",
+            "GET /api/automation/workflows",
             "GET /health"
         ]
     }
