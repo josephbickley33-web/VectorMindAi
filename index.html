@@ -1220,6 +1220,104 @@
         </div>
       </section>
 
+      <section id="demos">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Live AI demos</div>
+            <h2 class="section-title">Try the core VectorMind AI tools in your browser.</h2>
+            <p class="section-subtitle">
+              These lightweight demos call the same backend logic we use in projects: automation design, agents, Natural Language Processing (NLP),
+              Predictive Analytics & Forecasting (PAF), and AI‑Enhanced Customer Experience Systems (AI‑CXS).
+            </p>
+          </div>
+
+          <div class="cards-grid">
+
+            <!-- AI-AWI: Workflow designer -->
+            <article class="card">
+              <div class="card-tag">AI‑AWI demo</div>
+              <h3 class="card-title">Design an AI automation workflow</h3>
+              <p class="card-body">
+                Describe a process in your business and get a suggested AI‑powered workflow plan.
+              </p>
+              <textarea id="demo-awi-input" rows="4" style="width:100%; padding:0.5rem; border-radius:8px; border:none; resize:vertical;"></textarea>
+              <button onclick="runAWIDemo()" class="btn btn-primary" style="margin-top:0.6rem;">Generate workflow plan</button>
+              <div id="demo-awi-output" style="margin-top:0.7rem; font-size:0.84rem; color:#cfd3f5;"></div>
+            </article>
+
+            <!-- AI-AA: Agent demo -->
+            <article class="card">
+              <div class="card-tag">AI‑AA demo</div>
+              <h3 class="card-title">Ask a specialised AI agent</h3>
+              <p class="card-body">
+                Pick a role for the agent, define its task, and provide details. It will respond as that specialist.
+              </p>
+              <input id="demo-agent-role" type="text" placeholder="Example: Sales advisor" style="width:100%; padding:0.4rem; border-radius:8px; border:none; margin-bottom:0.3rem;">
+              <input id="demo-agent-task" type="text" placeholder="Example: Qualify inbound leads" style="width:100%; padding:0.4rem; border-radius:8px; border:none; margin-bottom:0.3rem;">
+              <textarea id="demo-agent-details" rows="3" placeholder="Describe the situation, customer type, product, etc." style="width:100%; padding:0.5rem; border-radius:8px; border:none; resize:vertical;"></textarea>
+              <button onclick="runAgentDemo()" class="btn btn-primary" style="margin-top:0.6rem;">Ask the agent</button>
+              <div id="demo-agent-output" style="margin-top:0.7rem; font-size:0.84rem; color:#cfd3f5;"></div>
+            </article>
+
+            <!-- NLP-S: Summariser -->
+            <article class="card">
+              <div class="card-tag">NLP‑S demo</div>
+              <h3 class="card-title">Summarise a block of text</h3>
+              <p class="card-body">
+                Paste an email, document, or notes and get a clear summary in bullet points.
+              </p>
+              <textarea id="demo-summarise-input" rows="4" style="width:100%; padding:0.5rem; border-radius:8px; border:none; resize:vertical;"></textarea>
+              <button onclick="runSummariseDemo()" class="btn btn-primary" style="margin-top:0.6rem;">Summarise</button>
+              <div id="demo-summarise-output" style="margin-top:0.7rem; font-size:0.84rem; color:#cfd3f5;"></div>
+            </article>
+
+            <!-- NLP-S: Email writer -->
+            <article class="card">
+              <div class="card-tag">NLP‑S demo</div>
+              <h3 class="card-title">Generate a professional email</h3>
+              <p class="card-body">
+                Describe the situation and choose a tone. The system will draft a complete email with subject and body.
+              </p>
+              <textarea id="demo-email-context" rows="3" placeholder="Explain who you are writing to, why, and what outcome you want." style="width:100%; padding:0.5rem; border-radius:8px; border:none; resize:vertical;"></textarea>
+              <select id="demo-email-tone" style="width:100%; margin-top:0.4rem; padding:0.4rem; border-radius:8px; border:none;">
+                <option value="professional" selected>Professional</option>
+                <option value="friendly">Friendly</option>
+                <option value="direct">Direct</option>
+                <option value="formal">Formal</option>
+              </select>
+              <button onclick="runEmailDemo()" class="btn btn-primary" style="margin-top:0.6rem;">Generate email</button>
+              <div id="demo-email-output" style="margin-top:0.7rem; font-size:0.84rem; color:#cfd3f5; white-space:pre-wrap;"></div>
+            </article>
+
+            <!-- PAF: Simple numeric forecast -->
+            <article class="card">
+              <div class="card-tag">PAF demo</div>
+              <h3 class="card-title">Forecast a simple time series</h3>
+              <p class="card-body">
+                Enter a series of numbers (for example, monthly sales) and get an AI‑assisted forecast with explanation.
+              </p>
+              <input id="demo-forecast-series" type="text" placeholder="Example: 10, 12, 15, 17, 20" style="width:100%; padding:0.4rem; border-radius:8px; border:none; margin-bottom:0.3rem;">
+              <input id="demo-forecast-horizon" type="number" value="4" min="1" max="12" style="width:100%; padding:0.4rem; border-radius:8px; border:none; margin-bottom:0.3rem;">
+              <button onclick="runForecastDemo()" class="btn btn-primary" style="margin-top:0.6rem;">Generate forecast</button>
+              <div id="demo-forecast-output" style="margin-top:0.7rem; font-size:0.84rem; color:#cfd3f5; white-space:pre-wrap;"></div>
+            </article>
+
+            <!-- AI-CXS: Sentiment & next actions -->
+            <article class="card">
+              <div class="card-tag">AI‑CXS demo</div>
+              <h3 class="card-title">Analyse customer sentiment and next steps</h3>
+              <p class="card-body">
+                Paste a customer message, review, or email. The system will analyse sentiment and suggest next actions.
+              </p>
+              <textarea id="demo-sentiment-input" rows="4" style="width:100%; padding:0.5rem; border-radius:8px; border:none; resize:vertical;"></textarea>
+              <button onclick="runSentimentDemo()" class="btn btn-primary" style="margin-top:0.6rem;">Analyse sentiment</button>
+              <div id="demo-sentiment-output" style="margin-top:0.7rem; font-size:0.84rem; color:#cfd3f5; white-space:pre-wrap;"></div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
       <!-- WHY US -->
       <section id="why-us">
         <div class="container two-column">
