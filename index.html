@@ -1642,103 +1642,168 @@
   </div>
 
   <script>
-    // Simple current year injection
-    document.getElementById("year").textContent = new Date().getFullYear();
+    // Change this to your deployed backend URL when live
+    const API_BASE = "http://localhost:8000";
 
-    // Lightweight demo stubs (mock responses so demos work locally)
-    function setOutput(id, text) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.textContent = text;
+    async function postJSON(path, data) {
+      const res = await fetch(API_BASE + path, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) {
+        let errText = "Request failed";
+        try {
+          const err = await res.json();
+          errText = err.detail || JSON.stringify(err);
+        } catch (e) {}
+        throw new Error(errText);
+      }
+      return res.json();
     }
 
-    function runAWIDemo() {
-      const input = document.getElementById('demo-awi-input').value.trim();
-      if (!input) { setOutput('demo-awi-output','Please describe the process you want to automate.'); return; }
-      setOutput('demo-awi-output','Generating workflow plan...');
-      setTimeout(() => {
-        const lines = input.split(/[\.\n]/).map(s=>s.trim()).filter(Boolean);
-        const steps = lines.length ? lines.slice(0,3).map((l,i)=>`${i+1}. ${l}`) : ['1. Map inputs and outputs','2. Add AI step to transform data','3. Automate handoff to existing tools'];
-        setOutput('demo-awi-output', 'Suggested workflow:\n' + steps.join('\n'));
-      }, 600);
+    async function safeRun(fn, outputEl) {
+      try {
+        await fn();
+      } catch (err) {
+        outputEl.textContent = "Error: " + err.message;
+      }
     }
 
-    function runAgentDemo() {
-      const role = document.getElementById('demo-agent-role').value.trim() || 'Agent';
-      const task = document.getElementById('demo-agent-task').value.trim() || 'perform the requested task';
-      const details = document.getElementById('demo-agent-details').value.trim() || '';
-      setOutput('demo-agent-output','Thinking...');
-      setTimeout(()=>{
-        setOutput('demo-agent-output', `As a ${role}, I would approach this task as follows:\n1) Clarify the goal (${task}).\n2) Use the available context: ${details || 'no extra details provided'}.\n3) Provide a short script or reply clients can use.`);
-      },500);
+    // ---- AI-AWI demo ----
+    async function runAWIDemo() {
+      const inputEl = document.getElementById("demo-awi-input");
+      const outputEl = document.getElementById("demo-awi-output");
+      const text = inputEl.value.trim();
+      if (!text) {
+        outputEl.textContent = "Please describe a workflow first.";
+        return;
+      }
+      outputEl.textContent = "Generating workflow plan...";
+      await safeRun(async () => {
+        const data = await postJSON("/api/automation/workflow", { text });
+        outputEl.innerHTML = data.workflow_plan.replace(/\n/g, "<br>");
+      }, outputEl);
     }
 
-    function runSummariseDemo() {
-      const text = document.getElementById('demo-summarise-input').value.trim();
-      if (!text) { setOutput('demo-summarise-output','Paste some text to summarise.'); return; }
-      setOutput('demo-summarise-output','Summarising...');
-      setTimeout(()=>{
-        const sentences = text.split(/(?<=[.!?])\s+/).filter(Boolean);
-        const bullets = sentences.slice(0,3).map(s=>`• ${s.replace(/\s+/g,' ').trim()}`);
-        setOutput('demo-summarise-output', bullets.join('\n'));
-      },400);
+    // ---- AI-AA demo ----
+    async function runAgentDemo() {
+      const roleEl = document.getElementById("demo-agent-role");
+      const taskEl = document.getElementById("demo-agent-task");
+      const detailsEl = document.getElementById("demo-agent-details");
+      const outputEl = document.getElementById("demo-agent-output");
+
+      const role = roleEl.value.trim();
+      const task = taskEl.value.trim();
+      const details = detailsEl.value.trim();
+
+      if (!role || !task || !details) {
+        outputEl.textContent = "Please fill in role, task, and details.";
+        return;
+      }
+
+      outputEl.textContent = "Asking the agent...";
+      await safeRun(async () => {
+        const data = await postJSON("/api/agents/assistant", {
+          role,
+          task,
+          details
+        });
+        outputEl.innerHTML = data.agent_output.replace(/\n/g, "<br>");
+      }, outputEl);
     }
 
-    function runEmailDemo() {
-      const ctx = document.getElementById('demo-email-context').value.trim();
-      const tone = document.getElementById('demo-email-tone').value || 'professional';
-      if (!ctx) { setOutput('demo-email-output','Describe the context to generate an email.'); return; }
-      setOutput('demo-email-output','Generating email...');
-      setTimeout(()=>{
-        const subject = `Regarding: ${ctx.split(/[\.\n]/)[0].slice(0,60)}`;
-        let body = '';
-        if (tone === 'friendly') {
-          body = `Hi there,\n\n${ctx}\n\nCheers,\nVectorMind AI`;
-        } else if (tone === 'direct') {
-          body = `Hello,\n\n${ctx}\n\nPlease let me know the next steps.`;
-        } else if (tone === 'formal') {
-          body = `Dear Recipient,\n\n${ctx}\n\nYours sincerely,\nVectorMind AI`;
-        } else {
-          body = `Hello,\n\n${ctx}\n\nBest regards,\nVectorMind AI`;
-        }
-        setOutput('demo-email-output', `Subject: ${subject}\n\n${body}`);
-      },500);
+    // ---- NLP-S: summariser ----
+    async function runSummariseDemo() {
+      const inputEl = document.getElementById("demo-summarise-input");
+      const outputEl = document.getElementById("demo-summarise-output");
+      const text = inputEl.value.trim();
+      if (!text) {
+        outputEl.textContent = "Please paste some text to summarise.";
+        return;
+      }
+      outputEl.textContent = "Summarising...";
+      await safeRun(async () => {
+        const data = await postJSON("/api/nlp/summarise", { text });
+        outputEl.innerHTML = data.summary.replace(/\n/g, "<br>");
+      }, outputEl);
     }
 
-    function runForecastDemo() {
-      const seriesText = document.getElementById('demo-forecast-series').value.trim();
-      const horizon = parseInt(document.getElementById('demo-forecast-horizon').value,10) || 3;
-      if (!seriesText) { setOutput('demo-forecast-output','Enter a numeric series, e.g. 10,12,15'); return; }
-      setOutput('demo-forecast-output','Calculating forecast...');
-      setTimeout(()=>{
-        const nums = seriesText.split(',').map(s=>parseFloat(s)).filter(n=>!Number.isNaN(n));
-        if (nums.length < 2) { setOutput('demo-forecast-output','Provide at least two numeric values.'); return; }
-        const n = nums.length;
-        const growth = (nums[n-1]-nums[0])/(n-1);
-        const preds = [];
-        let last = nums[n-1];
-        for (let i=0;i<horizon;i++){ last = last + growth; preds.push(Math.round((last + Number.EPSILON)*100)/100); }
-        setOutput('demo-forecast-output', `Input: [${nums.join(', ')}]\nForecast (${horizon} steps): [${preds.join(', ')}]\nEstimated linear growth per step: ${Math.round(growth*100)/100}`);
-      },600);
+    // ---- NLP-S: email writer ----
+    async function runEmailDemo() {
+      const contextEl = document.getElementById("demo-email-context");
+      const toneEl = document.getElementById("demo-email-tone");
+      const outputEl = document.getElementById("demo-email-output");
+
+      const context = contextEl.value.trim();
+      const tone = toneEl.value;
+
+      if (!context) {
+        outputEl.textContent = "Please describe the email context.";
+        return;
+      }
+      outputEl.textContent = "Generating email...";
+      await safeRun(async () => {
+        const data = await postJSON("/api/nlp/generate_email", {
+          context,
+          tone
+        });
+        outputEl.textContent = data.email;
+      }, outputEl);
     }
 
-    function runSentimentDemo() {
-      const text = document.getElementById('demo-sentiment-input').value.trim();
-      if (!text) { setOutput('demo-sentiment-output','Paste a customer message to analyse.'); return; }
-      setOutput('demo-sentiment-output','Analysing...');
-      setTimeout(()=>{
-        const pos = ['good','great','love','excellent','happy','pleased','positive','awesome'];
-        const neg = ['bad','poor','hate','terrible','angry','upset','negative','disappointed'];
-        const t = text.toLowerCase();
-        let score = 0;
-        pos.forEach(w=>{ if (t.includes(w)) score++; });
-        neg.forEach(w=>{ if (t.includes(w)) score--; });
-        let sentiment = 'Neutral';
-        if (score > 0) sentiment = 'Positive';
-        if (score < 0) sentiment = 'Negative';
-        const actions = sentiment === 'Positive' ? 'Send a thank-you + upsell suggestion.' : 'Acknowledge issue, offer a remedy, escalate if needed.';
-        setOutput('demo-sentiment-output', `Sentiment: ${sentiment}\nScore: ${score}\nSuggested next actions: ${actions}`);
-      },450);
+    // ---- PAF: numeric forecast ----
+    async function runForecastDemo() {
+      const seriesEl = document.getElementById("demo-forecast-series");
+      const horizonEl = document.getElementById("demo-forecast-horizon");
+      const outputEl = document.getElementById("demo-forecast-output");
+
+      const rawSeries = seriesEl.value.trim();
+      if (!rawSeries) {
+        outputEl.textContent = "Please enter a comma‑separated series of numbers.";
+        return;
+      }
+
+      const horizon = parseInt(horizonEl.value || "4", 10);
+      const parts = rawSeries.split(",").map(s => s.trim()).filter(Boolean);
+      const nums = parts.map(Number).filter(n => !isNaN(n));
+
+      if (!nums.length) {
+        outputEl.textContent = "Could not parse any numbers. Example input: 10, 12, 15, 17, 20";
+        return;
+      }
+
+      outputEl.textContent = "Generating forecast...";
+      await safeRun(async () => {
+        const data = await postJSON("/api/predictive/forecast", {
+          data: nums,
+          horizon
+        });
+        outputEl.textContent = data.forecast_result;
+      }, outputEl);
+    }
+
+    // ---- AI-CXS: sentiment & actions ----
+    async function runSentimentDemo() {
+      const inputEl = document.getElementById("demo-sentiment-input");
+      const outputEl = document.getElementById("demo-sentiment-output");
+      const text = inputEl.value.trim();
+      if (!text) {
+        outputEl.textContent = "Please paste a customer message first.";
+        return;
+      }
+      outputEl.textContent = "Analysing sentiment...";
+      await safeRun(async () => {
+        const data = await postJSON("/api/cx/sentiment", { text });
+        outputEl.textContent = data.sentiment_analysis;
+      }, outputEl);
+    }
+
+    // Existing year injection (keep this if it is already there)
+    if (document.getElementById("year")) {
+      document.getElementById("year").textContent = new Date().getFullYear();
     }
   </script>
 </body>
