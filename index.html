@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VectorMind AI – Practical AI Integration for Modern Businesses</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="VectorMind AI helps businesses of all sizes integrate Artificial Intelligence into real workflows with services and subscriptions." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #050815;
+      --bg-darker: #02030a;
+      --bg-light: #f4f6fb;
+      --accent: #27e0c0;
+      --accent-soft: rgba(39, 224, 192, 0.12);
+      --text-main: #f9fbff;
+      --text-muted: #969ab3;
+      --text-dark: #1c1f2b;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.45);
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+      --transition-fast: 0.18s ease-out;
+      --max-width: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top left, #15193b 0, #050815 42%, #02030a 100%);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 1.6rem;
+    }
+
+    /* NAV */
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(to bottom, rgba(5, 8, 21, 0.95), rgba(5, 8, 21, 0.78), transparent);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0.4rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 30% 0, #27e0c0, #00b1ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #050815;
+      font-weight: 700;
+      font-size: 1.05rem;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .brand-text-main {
+      font-family: "Poppins", system-ui, sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      font-size: 1.08rem;
+    }
+
+    .brand-text-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.6rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .nav-links a {
+      position: relative;
+      padding: 0.25rem 0;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(to right, #27e0c0, #00b1ff);
+      border-radius: 999px;
+      transition: width var(--transition-fast);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .btn {
+      border-radius: var(--radius-pill);
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+      padding: 0.55rem 1.4rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #27e0c0, #00b1ff);
+      color: #050815;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
+      filter: brightness(1.05);
+    }
+
+    .btn-ghost {
+      border-color: rgba(255, 255, 255, 0.18);
+      color: var(--text-muted);
+      background: rgba(5, 8, 21, 0.75);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    /* HERO */
+
+    .hero {
+      padding: 4.4rem 0 3.4rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(5, 8, 21, 0.7);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero-eyebrow-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.7rem;
+    }
+
+    .hero-title {
+      font-family: "Poppins", system-ui, sans-serif;
+      font-size: clamp(2.4rem, 3vw + 1.5rem, 3.3rem);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #27e0c0, #00b1ff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin-bottom: 1.6rem;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.7rem;
+    }
+
+    .badge {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.25rem 0.7rem;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      background: rgba(5, 8, 21, 0.7);
+    }
+
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      align-items: center;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .hero-note span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .hero-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-top: 1.6rem;
+    }
+
+    .metric {
+      min-width: 120px;
+    }
+
+    .metric-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .metric-value {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .metric-value span {
+      color: var(--accent);
+    }
+
+    /* HERO RIGHT PANEL */
+
+    .hero-card {
+      background: radial-gradient(circle at top, rgba(39, 224, 192, 0.1), rgba(5, 8, 21, 0.9));
+      border-radius: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: var(--shadow-soft);
+      padding: 1.6rem 1.4rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero-card-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .status-pill {
+      font-size: 0.72rem;
+      padding: 0.16rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(4, 213, 156, 0.12);
+      color: #42f5c4;
+      border: 1px solid rgba(39, 224, 192, 0.4);
+    }
+
+    .hero-card-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 1.1rem;
+      align-items: flex-start;
+    }
+
+    .pipeline-card {
+      background: rgba(5, 8, 21, 0.92);
+      border-radius: 18px;
+      padding: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .pipeline-title {
+      font-size: 0.82rem;
+      margin-bottom: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    .pipeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .pipeline-step {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.45rem 0.55rem;
+      border-radius: 12px;
+      background: rgba(11, 16, 40, 0.95);
+    }
+
+    .step-text {
+      font-size: 0.8rem;
+    }
+
+    .step-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .step-pill {
+      font-size: 0.7rem;
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--accent);
+      background: rgba(39, 224, 192, 0.06);
+    }
+
+    .roi-card {
+      background: rgba(5, 8, 21, 0.92);
+      border-radius: 18px;
+      padding: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .roi-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .roi-value {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .roi-value span {
+      color: var(--accent);
+    }
+
+    .roi-bar-shell {
+      margin-top: 0.7rem;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .roi-bar-fill {
+      width: 82%;
+      height: 100%;
+      background: linear-gradient(90deg, #27e0c0, #00b1ff);
+    }
+
+    .hero-floating-pill {
+      position: absolute;
+      right: 10%;
+      bottom: 12%;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(5, 8, 21, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--text-muted);
+    }
+
+    .pill-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #27e0c0;
+      box-shadow: 0 0 12px rgba(39, 224, 192, 0.9);
+    }
+
+    /* SECTION SHELLS */
+
+    section {
+      padding: 2.4rem 0;
+    }
+
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .section-kicker {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .section-title {
+      font-family: "Poppins", system-ui, sans-serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+    }
+
+    .section-subtitle {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      max-width: 540px;
+    }
+
+    /* LOGO STRIP */
+
+    .logo-strip {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 1.1rem 0;
+      margin-top: 0.4rem;
+      background: linear-gradient(to right, rgba(5, 8, 21, 0.9), rgba(5, 8, 21, 0.7));
+    }
+
+    .logo-strip-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .logo-pill {
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(11, 16, 40, 0.9);
+    }
+
+    /* CARDS GRID GENERIC */
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.3rem;
+    }
+
+    .card {
+      background: rgba(5, 8, 21, 0.92);
+      border-radius: var(--radius-lg);
+      padding: 1.1rem 1rem;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.55);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(39, 224, 192, 0.04), transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+
+    .card-title {
+      font-size: 1.02rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-body {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-bottom: 0.7rem;
+    }
+
+    .card-list {
+      list-style: none;
+      margin: 0.3rem 0 0.7rem;
+      padding-left: 0;
+    }
+
+    .card-list li {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.4rem;
+      align-items: flex-start;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-list li span {
+      color: var(--accent);
+      margin-top: 0.12rem;
+    }
+
+    .card-footnote {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* PRICING */
+
+    .pricing-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 1.4rem;
+      align-items: flex-start;
+    }
+
+    .pricing-note {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .toggle-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: rgba(5, 8, 21, 0.9);
+      border-radius: 999px;
+      padding: 0.28rem 0.35rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 1rem;
+    }
+
+    .toggle-pill {
+      border-radius: 999px;
+      padding: 0.22rem 0.7rem;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .toggle-pill.highlight {
+      background: rgba(39, 224, 192, 0.16);
+      color: var(--accent);
+    }
+
+    .pricing-card {
+      background: rgba(5, 8, 21, 0.96);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 1.2rem 1rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .pricing-badge {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+
+    .pricing-name {
+      font-size: 1.05rem;
+      font-weight: 500;
+      margin-bottom: 0.1rem;
+    }
+
+    .pricing-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .pricing-value {
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .pricing-value-main {
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+
+    .pricing-value-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin: 0.4rem 0 0.9rem;
+      padding: 0;
+    }
+
+    .pricing-features li {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.4rem;
+      align-items: flex-start;
+      margin-bottom: 0.25rem;
+    }
+
+    .pricing-features li span {
+      color: var(--accent);
+      margin-top: 0.1rem;
+    }
+
+    .pricing-foot {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* HOW IT WORKS */
+
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .step-card {
+      background: rgba(5, 8, 21, 0.96);
+      border-radius: 16px;
+      padding: 0.8rem 0.7rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .step-number {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      margin-bottom: 0.2rem;
+    }
+
+    .step-title {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    /* USE CASES */
+
+    .usecases-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.1rem;
+    }
+
+    .usecase-card {
+      background: rgba(5, 8, 21, 0.9);
+      border-radius: 16px;
+      padding: 0.9rem 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .usecase-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    .usecase-title {
+      font-size: 0.92rem;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    /* TWO COLUMN (TESTIMONIAL / FAQ / WHY US) */
+
+    .two-column {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 1.4rem;
+      align-items: flex-start;
+    }
+
+    .testimonial-card {
+      background: rgba(5, 8, 21, 0.96);
+      border-radius: 18px;
+      padding: 1rem 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .testimonial-quote {
+      margin-bottom: 0.6rem;
+    }
+
+    .testimonial-author {
+      font-size: 0.86rem;
+      color: var(--text-main);
+      font-weight: 500;
+      margin-bottom: 0.1rem;
+    }
+
+    .testimonial-role {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .faq-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .faq-item {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .faq-q {
+      font-size: 0.86rem;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    .faq-a {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* CTA SECTION */
+
+    .cta-block {
+      background: radial-gradient(circle at top left, rgba(39, 224, 192, 0.15), rgba(5, 8, 21, 0.97));
+      border-radius: 22px;
+      padding: 1.6rem 1.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .cta-text-main {
+      font-family: "Poppins", system-ui, sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .cta-text-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      max-width: 480px;
+    }
+
+    /* WHY US / WHO FOR / MATURITY LADDER */
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0.18rem 0.6rem;
+      background: rgba(5, 8, 21, 0.9);
+    }
+
+    .ladder-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.2rem 0 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .ladder-list li {
+      margin-bottom: 0.25rem;
+    }
+
+    .ladder-stage {
+      color: var(--accent);
+      font-weight: 500;
+      margin-right: 0.25rem;
+    }
+
+    /* FOOTER */
+
+    footer {
+      margin-top: 2rem;
+      padding: 1.4rem 0 1.6rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .pricing-layout,
+      .two-column {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .hero {
+        padding-top: 3.4rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .cards-grid,
+      .usecases-grid,
+      .steps-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .cards-grid,
+      .usecases-grid,
+      .steps-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .hero-title {
+        font-size: 2.1rem;
+      }
+
+      .hero-card {
+        margin-top: 0.4rem;
+      }
+
+      .hero-floating-pill {
+        position: static;
+        margin-top: 0.8rem;
+      }
+
+      .cta-block {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- NAV -->
+    <nav class="nav">
+      <div class="container nav-inner">
+        <a href="#top" class="brand">
+          <div class="brand-logo">V</div>
+          <div>
+            <div class="brand-text-main">VectorMind AI</div>
+            <div class="brand-text-sub">Applied intelligence for business</div>
+          </div>
+        </a>
+        <div class="nav-links">
+          <a href="#services">Services</a>
+          <a href="#pricing">Subscriptions</a>
+          <a href="#why-us">Why us</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="nav-cta">
+          <a href="#pricing" class="btn btn-ghost">View plans</a>
+          <a href="#contact" class="btn btn-primary">Book intro call</a>
+        </div>
+      </div>
+    </nav>
+
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <div class="hero-eyebrow">
+              <span class="hero-eyebrow-pill">●</span>
+              <span>AI (Artificial Intelligence) integration for real‑world businesses</span>
+            </div>
+            <h1 class="hero-title">
+              We turn your workflows into <span>AI‑powered systems</span>.
+            </h1>
+            <p class="hero-subtitle">
+              VectorMind AI helps organisations of every size — from solo founders to enterprises — plug real AI capabilities into
+              existing tools and processes. We combine project delivery with ongoing subscriptions so your AI stack keeps improving.
+            </p>
+            <div class="hero-badges">
+              <div class="badge">Done‑for‑you AI workflows</div>
+              <div class="badge">Custom automations & agents</div>
+              <div class="badge">Flexible subscription support</div>
+            </div>
+            <div class="hero-cta-row">
+              <a href="#contact" class="btn btn-primary">
+                Schedule a discovery call
+              </a>
+              <a href="#services" class="btn btn-ghost">
+                Explore AI service pillars
+              </a>
+            </div>
+            <div class="hero-note">
+              Start with what you already have — tools, people and processes. <span>We layer AI on top, not chaos.</span>
+            </div>
+            <div class="hero-metrics">
+              <div class="metric">
+                <div class="metric-label">Average response time cut</div>
+                <div class="metric-value"><span>40–70%</span> faster</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Automation coverage</div>
+                <div class="metric-value"><span>30–60%</span> of tasks</div>
+              </div>
+            </div>
+          </div>
+
+          <aside>
+            <div class="hero-card">
+              <div class="hero-card-header">
+                <div class="hero-card-title">
+                  AI integration snapshot
+                </div>
+                <div class="status-pill">Live project</div>
+              </div>
+              <div class="hero-card-body">
+                <div class="pipeline-card">
+                  <div class="pipeline-title">Sales & support pipeline</div>
+                  <div class="pipeline-list">
+                    <div class="pipeline-step">
+                      <div>
+                        <div class="step-text">Website assistant</div>
+                        <div class="step-label">Answers FAQs (Frequently Asked Questions), captures leads</div>
+                      </div>
+                      <span class="step-pill">24/7</span>
+                    </div>
+                    <div class="pipeline-step">
+                      <div>
+                        <div class="step-text">Lead qualification agent</div>
+                        <div class="step-label">Summarises & routes enquiries</div>
+                      </div>
+                      <span class="step-pill">−63% workload</span>
+                    </div>
+                    <div class="pipeline-step">
+                      <div>
+                        <div class="step-text">CRM (Customer Relationship Management) automation</div>
+                        <div class="step-label">Notes & follow‑ups auto‑drafted</div>
+                      </div>
+                      <span class="step-pill">Launch in 3 weeks</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="roi-card">
+                  <div class="roi-label">Projected annual impact</div>
+                  <div class="roi-value">
+                    +<span>£128,000</span> in team capacity
+                  </div>
+                  <div class="roi-bar-shell">
+                    <div class="roi-bar-fill"></div>
+                  </div>
+                  <div class="roi-label" style="margin-top:0.4rem;">
+                    Based on time saved across support, sales and operations.
+                  </div>
+                </div>
+              </div>
+              <div class="hero-floating-pill">
+                <span class="pill-dot"></span>
+                <span>AI running quietly in the background, every day.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- LOGO STRIP -->
+      <section class="logo-strip">
+        <div class="container logo-strip-inner">
+          <span>We build on tools you already use:</span>
+          <span class="logo-pill">OpenAI / ChatGPT</span>
+          <span class="logo-pill">Microsoft 365 & Teams</span>
+          <span class="logo-pill">Google Workspace</span>
+          <span class="logo-pill">Slack, Notion & ClickUp</span>
+          <span class="logo-pill">HubSpot, Salesforce & other CRMs</span>
+          <span class="logo-pill">Zapier, Make & custom APIs (Application Programming Interfaces)</span>
+        </div>
+      </section>
+
+      <!-- SERVICES (5 UNIVERSAL AI PILLARS) -->
+      <section id="services">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Core services</div>
+            <h2 class="section-title">The 5 AI capabilities every modern business needs.</h2>
+            <p class="section-subtitle">
+              We deliver the universal AI (Artificial Intelligence) systems that reduce workload, increase conversions and unlock new revenue.
+              These five pillars are relevant whether you are a solo founder, growing agency, retailer, or enterprise team.
+            </p>
+          </div>
+
+          <div class="cards-grid">
+            <!-- AI-AWI -->
+            <article class="card">
+              <div class="card-tag">AI‑AWI</div>
+              <h3 class="card-title">AI Automation & Workflow Integration</h3>
+              <p class="card-body">
+                Replace repetitive tasks with intelligent, automated systems that streamline operations and speed up revenue‑generating work.
+              </p>
+              <ul class="card-list">
+                <li><span>▹</span>Automated lead capture & routing</li>
+                <li><span>▹</span>AI‑driven follow‑up sequences</li>
+                <li><span>▹</span>CRM (Customer Relationship Management) automation</li>
+                <li><span>▹</span>Document generation & admin reduction</li>
+                <li><span>▹</span>Cross‑tool integrations across email, chat, CRMs and data</li>
+              </ul>
+              <div class="card-footnote">
+                AI‑AWI reduces manual workload, cuts errors, and keeps your sales engine moving even when your team is offline.
+              </div>
+            </article>
+
+            <!-- AI-AA -->
+            <article class="card">
+              <div class="card-tag">AI‑AA</div>
+              <h3 class="card-title">AI Agents & Assistants</h3>
+              <p class="card-body">
+                Deploy custom AI agents that behave like digital employees — working 24/7 alongside your team and customers.
+              </p>
+              <ul class="card-list">
+                <li><span>▹</span>Sales qualification and pre‑screening agents</li>
+                <li><span>▹</span>Customer support assistants for FAQs (Frequently Asked Questions)</li>
+                <li><span>▹</span>Research & data‑gathering agents</li>
+                <li><span>▹</span>Internal productivity assistants</li>
+                <li><span>▹</span>Website chat agents that convert visitors into leads</li>
+              </ul>
+              <div class="card-footnote">
+                AI‑AA ensures no lead is missed and each customer receives instant, consistent support.
+              </div>
+            </article>
+
+            <!-- NLP-S -->
+            <article class="card">
+              <div class="card-tag">NLP‑S</div>
+              <h3 class="card-title">Natural Language Processing Systems</h3>
+              <p class="card-body">
+                Use AI that understands and generates language to improve communication, documentation and content creation.
+              </p>
+              <ul class="card-list">
+                <li><span>▹</span>AI‑generated emails, proposals and reports</li>
+                <li><span>▹</span>Document summarisation & knowledge search</li>
+                <li><span>▹</span>Smart FAQ (Frequently Asked Questions) systems</li>
+                <li><span>▹</span>AI‑assisted content creation for marketing and sales</li>
+                <li><span>▹</span>Internal knowledge assistants for your team</li>
+              </ul>
+              <div class="card-footnote">
+                NLP‑S (Natural Language Processing Systems) increase clarity, speed and consistency across every message leaving your business.
+              </div>
+            </article>
+
+            <!-- PAF -->
+            <article class="card">
+              <div class="card-tag">PAF</div>
+              <h3 class="card-title">Predictive Analytics & Forecasting</h3>
+              <p class="card-body">
+                Use your data to see around corners. Predict behaviour, demand and performance before decisions are made.
+              </p>
+              <ul class="card-list">
+                <li><span>▹</span>Sales forecasting and pipeline visibility</li>
+                <li><span>▹</span>Customer behaviour and purchase prediction</li>
+                <li><span>▹</span>Churn risk analysis for subscriptions and accounts</li>
+                <li><span>▹</span>Marketing performance prediction</li>
+                <li><span>▹</span>Inventory and demand forecasting</li>
+              </ul>
+              <div class="card-footnote">
+                PAF (Predictive Analytics & Forecasting) helps you allocate budget, time and attention where it will have the biggest impact.
+              </div>
+            </article>
+
+            <!-- AI-CXS -->
+            <article class="card">
+              <div class="card-tag">AI‑CXS</div>
+              <h3 class="card-title">AI‑Enhanced Customer Experience Systems</h3>
+              <p class="card-body">
+                Transform every customer interaction into a personalised, responsive experience that builds loyalty and increases revenue.
+              </p>
+              <ul class="card-list">
+                <li><span>▹</span>Personalised product or service recommendations</li>
+                <li><span>▹</span>Smart onboarding and guided flows</li>
+                <li><span>▹</span>Sentiment analysis on conversations and feedback</li>
+                <li><span>▹</span>Adaptive website and app experiences</li>
+                <li><span>▹</span>Automated customer journey mapping</li>
+              </ul>
+              <div class="card-footnote">
+                AI‑CXS (AI‑Enhanced Customer Experience Systems) increase retention, upsells and customer satisfaction across the customer lifecycle.
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- WHY US -->
+      <section id="why-us">
+        <div class="container two-column">
+          <div>
+            <div class="section-header">
+              <div class="section-kicker">Why choose VectorMind AI</div>
+              <h2 class="section-title">Applied intelligence, not experiments for their own sake.</h2>
+              <p class="section-subtitle">
+                We are not here to sell you another tool. We focus on outcomes: time saved, revenue gained,
+                and smoother operations — using the AI providers and platforms that best fit your context.
+              </p>
+            </div>
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                “We plug AI into the systems you already rely on — email, chat, CRMs (Customer Relationship Management systems),
+                documents and dashboards. The result is a layer of intelligence that feels invisible but is present in every workflow.”
+              </p>
+              <div class="pill-row">
+                <div class="pill">Tool‑agnostic approach</div>
+                <div class="pill">Security & governance aware</div>
+                <div class="pill">Clear scopes and timelines</div>
+                <div class="pill">Designed for non‑technical teams</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-header">
+              <div class="section-kicker">Who this is for</div>
+              <h2 class="section-title">From solo operators to enterprise teams.</h2>
+            </div>
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                VectorMind AI works with:
+              </p>
+              <ul class="ladder-list">
+                <li><span class="ladder-stage">Solo & micro‑businesses:</span> Replace manual admin and respond faster without hiring.</li>
+                <li><span class="ladder-stage">Agencies & consultancies:</span> Productise services, improve delivery and reporting.</li>
+                <li><span class="ladder-stage">E‑commerce & retail:</span> Optimise support, recommendations and inventory decisions.</li>
+                <li><span class="ladder-stage">Local service businesses:</span> Automate enquiries, bookings and follow‑ups.</li>
+                <li><span class="ladder-stage">Corporate & enterprise teams:</span> Pilot, then scale AI safely across departments.</li>
+              </ul>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.5rem;">
+                If you rely on repeatable processes and digital communication, AI can create leverage for you. We help you find and use it.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI MATURITY LADDER -->
+      <section>
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">AI maturity</div>
+            <h2 class="section-title">Where you are now, and what the next step looks like.</h2>
+            <p class="section-subtitle">
+              Most organisations fit somewhere on this AI maturity ladder. Our job is not to drag you to the top overnight,
+              but to move you one clear step forward — safely and profitably.
+            </p>
+          </div>
+
+          <div class="steps-row">
+            <div class="step-card">
+              <div class="step-number">Stage 01</div>
+              <div class="step-title">Exploring</div>
+              <p>
+                You are experimenting with public AI tools, but nothing is connected to your systems or processes yet.
+                We help you identify quick‑win use cases and design a practical starting plan.
+              </p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">Stage 02</div>
+              <div class="step-title">Pilot projects</div>
+              <p>
+                You have one or two AI‑powered workflows live. We help formalise them, measure impact, and decide where to extend next.
+              </p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">Stage 03</div>
+              <div class="step-title">Integrated</div>
+              <p>
+                AI is embedded in key processes like sales, support and operations. Our subscriptions keep these systems tuned and evolving.
+              </p>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">Stage 04</div>
+              <div class="step-title">AI‑driven</div>
+              <p>
+                You use Predictive Analytics & Forecasting (PAF) and AI‑Enhanced Customer Experience Systems (AI‑CXS) to make proactive decisions.
+                We help you maintain this advantage as tools and models evolve.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBSCRIPTIONS / PRICING -->
+      <section id="pricing">
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Subscriptions</div>
+            <h2 class="section-title">Stay ahead with ongoing AI support, not one‑off experiments.</h2>
+            <p class="section-subtitle">
+              Our subscription plans give you a fractional AI team — for strategy, implementation tweaks and daily support.
+              Pricing is tailored to your size and complexity.
+            </p>
+          </div>
+
+          <div class="pricing-layout">
+            <div>
+              <div class="toggle-row">
+                <div class="toggle-pill highlight">Monthly plans</div>
+                <div class="toggle-pill">Cancel anytime</div>
+                <span>Annual options available for teams that want long‑term compounding improvements.</span>
+              </div>
+              <p class="pricing-note">
+                Every subscription includes a shared Slack or Microsoft Teams channel, asynchronous support, and a fixed pool of
+                monthly hours you can use across strategy, build and optimisation work.
+              </p>
+              <p class="pricing-note">
+                Use your plan to ship small improvements continuously — new automations, better prompts, fresh use cases, training,
+                and periodic reviews of impact.
+              </p>
+            </div>
+
+            <div class="pricing-card">
+              <div class="pricing-badge">Most popular</div>
+              <div class="pricing-name">Embed plan</div>
+              <div class="pricing-desc">
+                For teams that want AI woven into day‑to‑day operations, with predictable expert support.
+              </div>
+              <div class="pricing-value">
+                <div class="pricing-value-main">Custom</div>
+                <div class="pricing-value-sub">per month • based on scope and team size</div>
+              </div>
+              <ul class="pricing-features">
+                <li><span>✓</span>Dedicated AI consultant and implementation support</li>
+                <li><span>✓</span>Shared channel for questions and quick requests</li>
+                <li><span>✓</span>Monthly workflow and usage review</li>
+                <li><span>✓</span>Rolling hours to apply to new automations</li>
+                <li><span>✓</span>Optional training sessions for teams and leaders</li>
+              </ul>
+              <a href="#contact" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:0.5rem;">
+                Discuss subscription fit
+              </a>
+              <div class="pricing-foot">
+                Tell us how your work gets done today. We will propose a subscription that matches your ambition and constraints.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- USE CASES -->
+      <section>
+        <div class="container">
+          <div class="section-header">
+            <div class="section-kicker">Use cases</div>
+            <h2 class="section-title">Where AI integration pays off fastest.</h2>
+          </div>
+
+          <div class="usecases-grid">
+            <div class="usecase-card">
+              <div class="usecase-label">Customer experience</div>
+              <div class="usecase-title">Smarter support, fewer tickets</div>
+              <p>
+                AI‑assisted helpdesks that auto‑draft replies, summarise conversations, and handle common questions —
+                so your team can focus on complex, high‑value cases.
+              </p>
+            </div>
+
+            <div class="usecase-card">
+              <div class="usecase-label">Sales</div>
+              <div class="usecase-title">Qualify and follow‑up on autopilot</div>
+              <p>
+                Lead intake, AI‑driven qualification, and follow‑up drafting that keeps your pipeline moving without
+                overloading your sales team.
+              </p>
+            </div>
+
+            <div class="usecase-card">
+              <div class="usecase-label">Operations</div>
+              <div class="usecase-title">Less admin, more execution</div>
+              <p>
+                Meeting summaries, task extraction, document prep and reporting powered by AI — integrated into your existing tools,
+                not replacing them.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TESTIMONIALS + FAQ + GUARANTEE -->
+      <section>
+        <div class="container two-column">
+          <div>
+            <div class="section-header">
+              <div class="section-kicker">In practice</div>
+              <h2 class="section-title">What working with VectorMind AI feels like.</h2>
+            </div>
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                “We had AI licenses but no real strategy. VectorMind AI sat with our team, mapped how we actually work,
+                and quietly replaced a chunk of manual effort with reliable automations. The tools feel like part of our
+                normal workflows, not a separate project.”
+              </p>
+              <div class="testimonial-author">Operations Director</div>
+              <div class="testimonial-role">Professional services firm • 40+ staff</div>
+            </div>
+            <div class="testimonial-card" style="margin-top:0.9rem;">
+              <p class="testimonial-quote">
+                “Instead of chasing every new AI trend, we now have a simple roadmap. Each month we improve one process.
+                The compounding effect over the year has been huge.”
+              </p>
+              <div class="testimonial-author">Founder</div>
+              <div class="testimonial-role">Digital agency • Global clients</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-header">
+              <div class="section-kicker">FAQ & guarantee</div>
+              <h2 class="section-title">Questions — and how we reduce your risk.</h2>
+            </div>
+            <ul class="faq-list">
+              <li class="faq-item">
+                <div class="faq-q">Do we need a technical team to work with you?</div>
+                <div class="faq-a">
+                  No. We regularly work directly with founders, operations, customer service and sales teams. If you do have in‑house
+                  technical staff, we collaborate with them on architecture, security and long‑term ownership.
+                </div>
+              </li>
+              <li class="faq-item">
+                <div class="faq-q">What about data security and compliance?</div>
+                <div class="faq-a">
+                  We design around your existing security model and compliance requirements. During discovery we clarify what data
+                  can and cannot be used, and choose providers, regions and settings accordingly.
+                </div>
+              </li>
+              <li class="faq-item">
+                <div class="faq-q">What if we are not sure where to start?</div>
+                <div class="faq-a">
+                  That is normal. Our entry point is a focused AI opportunity mapping session, where we identify quick wins and
+                  longer‑term opportunities based on your current workflows and tools.
+                </div>
+              </li>
+              <li class="faq-item">
+                <div class="faq-q">Do you offer any kind of guarantee?</div>
+                <div class="faq-a">
+                  On initial discovery and strategy work, if we cannot identify at least three high‑value AI opportunities relevant
+                  to your business, you do not move forward. You decide whether to continue based on clear value.
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA / CONTACT -->
+      <section id="contact">
+        <div class="container">
+          <div class="cta-block">
+            <div>
+              <div class="cta-text-main">Tell us what you want AI to fix first.</div>
+              <div class="cta-text-sub">
+                Send a short outline of your business, tools and the processes that feel heavy or slow.
+                We will respond with a handful of concrete AI ideas and, if it makes sense, suggest a project or subscription.
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; min-width:240px;">
+              <!-- Replace this email when you have a real address -->
+              <a href="mailto:hello@vectormind.ai?subject=AI%20integration%20enquiry" class="btn btn-primary" style="justify-content:center;">
+                Email your use case
+              </a>
+              <!-- Replace # with a booking URL (for example, Calendly) when ready -->
+              <a href="#" class="btn btn-ghost" style="justify-content:center;">
+                Add your booking link here
+              </a>
+              <div style="font-size:0.78rem; color:var(--text-muted);">
+                Later, embed your calendar or booking system so prospects can book directly into your diary.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="container footer-inner">
+        <div>© <span id="year"></span> VectorMind AI. All rights reserved.</div>
+        <div class="footer-links">
+          <a href="#top">Back to top</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Simple current year injection
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
