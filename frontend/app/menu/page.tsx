@@ -21,6 +21,17 @@ const tools: ToolCard[] = [
     badge: "Recommended",
   },
   {
+    title: "AI Comparison",
+    description: "Compare responses from multiple AI providers side-by-side with metrics.",
+    href: "/comparison",
+    badge: "New",
+  },
+  {
+    title: "Pricing & Plans",
+    description: "View pricing tiers and manage your subscription.",
+    href: "/pricing",
+  },
+  {
     title: "Standard Console",
     description: "Original authenticated console with conversation management.",
     href: "/console",
@@ -39,6 +50,11 @@ const tools: ToolCard[] = [
     title: "Settings",
     description: "Adjust AI persona, custom prompt, and preferences.",
     href: "/settings",
+  },
+  {
+    title: "Subscription",
+    description: "Manage your subscription, view usage, and billing history.",
+    href: "/subscription",
   },
   {
     title: "Landing Demo",
